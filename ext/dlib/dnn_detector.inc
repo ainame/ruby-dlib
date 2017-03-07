@@ -1,6 +1,7 @@
 // vim: ft=cpp
 
 #include <iostream>
+#include <dlib/rand.h>
 #include <dlib/dnn.h>
 #include <dlib/data_io.h>
 #include <dlib/image_processing.h>
@@ -92,7 +93,11 @@ dlib_rb_dnn_fd_detect_in_batches(VALUE dnn_fd, VALUE images)
 
   std::vector<std::vector<dlib::mmod_rect>> detections_in_batches;
   try {
+    dlib::rand rnd(time(0));
+    int device = rnd.get_random_32bit_number() % dlib::cuda::get_num_devices();
+    dlib::cuda::set_device(device);
     detections_in_batches = dnn_fdcont->net(matrixes);
+    dlib::cuda::device_synchronize(device);
   } catch (std::bad_alloc& error) {
     rb_raise(eDlibDNNFaceDetectorBadAllocationError, "Bad allocation memory while inferencing");
   }
