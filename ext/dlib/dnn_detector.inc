@@ -151,9 +151,4 @@ Init_dlib_dnn_detector()
   rb_define_method(cDlibDNNFaceDetector, "initialize", RUBY_METHOD_FUNC(dlib_rb_dnn_fd_initialize), 1);
 
   rb_define_method(cDlibDNNFaceDetector, "detect", RUBY_METHOD_FUNC(dlib_rb_dnn_fd_detect), 1);
-
-  dlib::rand rnd(time(0));
-  int device = rnd.get_random_32bit_number() % dlib::cuda::get_num_devices();
-  printf("use device: %d", device);
-  dlib::cuda::set_device(device);
 }
