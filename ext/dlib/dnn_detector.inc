@@ -72,7 +72,7 @@ static VALUE
 dlib_rb_dnn_fd_initialize(VALUE dnn_fd, VALUE filename)
 {
   dnn_fd_container *dnn_fdcont = dlib_rb_dnn_fd_get_dnn_fd_container(dnn_fd);
-  dlib::deserialize(StringValueCStr(filename))  >> dnn_fdcont->net;
+  dlib::deserialize(StringValueCStr(filename)) >> dnn_fdcont->net;
   return dnn_fd;
 }
 
@@ -92,12 +92,8 @@ dlib_rb_dnn_fd_detect_in_batches(VALUE dnn_fd, VALUE images)
   }
 
   std::vector<std::vector<dlib::mmod_rect>> detections_in_batches;
-  try {
-    dlib::rand rnd(time(0));
-    int device = rnd.get_random_32bit_number() % dlib::cuda::get_num_devices();
-    dlib::cuda::set_device(device);
+  try {    
     detections_in_batches = dnn_fdcont->net(matrixes);
-    dlib::cuda::device_synchronize(device);
   } catch (std::bad_alloc& error) {
     rb_raise(eDlibDNNFaceDetectorBadAllocationError, "Bad allocation memory while inferencing");
   }
@@ -155,4 +151,9 @@ Init_dlib_dnn_detector()
   rb_define_method(cDlibDNNFaceDetector, "initialize", RUBY_METHOD_FUNC(dlib_rb_dnn_fd_initialize), 1);
 
   rb_define_method(cDlibDNNFaceDetector, "detect", RUBY_METHOD_FUNC(dlib_rb_dnn_fd_detect), 1);
+
+  dlib::rand rnd(time(0));
+  int device = rnd.get_random_32bit_number() % dlib::cuda::get_num_devices();
+  printf("use device: %d", device);
+  dlib::cuda::set_device(device);
 }
